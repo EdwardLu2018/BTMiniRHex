@@ -45,6 +45,9 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         backward.isHidden = true
         left.isHidden = true
         stop.isHidden = true
+        
+        tableView.dataSource = self
+        tableView.delegate = self
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -71,19 +74,21 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         UIView.animate(withDuration: 0.75) {
             self.tableView.alpha = 0.0
         }
+        centralManager.connect(robotPeripheral)
         forward.isHidden = false
         right.isHidden = false
         backward.isHidden = false
         left.isHidden = false
         stop.isHidden = false
         centralManager.stopScan()
+        tableView.reloadData()
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "miniRHexCell", for: indexPath) as? TableViewCell else {
             fatalError("The dequeued cell is not an instance of SongTableViewCell.")
         }
-        cell.title.text = peripherals[indexPath.row].name
+        cell.title.text = peripherals[indexPath.row].identifier.uuidString
         return cell
     }
     
@@ -100,6 +105,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         if robotPeripheral != nil {
             centralManager.cancelPeripheralConnection(robotPeripheral)
             statusLabel.text = "DISCONNECTED"
+            tableView.isHidden = false
             UIView.animate(withDuration: 0.75) {
                 self.tableView.alpha = 1.0
             }
@@ -162,6 +168,8 @@ extension ViewController: CBCentralManagerDelegate {
             peripherals.append(peripheral)
             peripheral.delegate = self
         }
+        print(peripherals)
+        tableView.reloadData()
     }
     
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
