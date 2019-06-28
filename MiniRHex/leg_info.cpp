@@ -1,20 +1,14 @@
 #include "leg_info.h"
 #include "control_parameters.h"
 #include "gait_parameters.h"
+// #include "gaits.h"
 #include <fstream>
 
-const int STAND = 0;
-const int WALK = 1;
-const int LEFT = 2;
-const int REVERSE = 3;
-const int RIGHT = 4;
-const int PRONK = 5;
+int active_mini = 1;
 
-
-void update_gait(int leg_index, int gait, int startMillis){
-  Gait new_gait = (gait == PRONK) ? pronk_gait: walk_gait;
-  printf("Gait %d\n", new_gait.t_cc[leg_index]);
-  legs[leg_index].gait = gait;
+void update_gait(int leg_index, int gait_idx, int startMillis){
+  Gait new_gait = all_gaits[gait_idx];
+  legs[leg_index].gait = new_gait;
   legs[leg_index].theta_slow = new_gait.theta_s[leg_index];
   legs[leg_index].theta_down = new_gait.theta_d[leg_index];
   legs[leg_index].t_c = new_gait.t_cc[leg_index];
@@ -30,7 +24,7 @@ void update_gait_internal_params(leg& l, int startTime){
   float recovery_speed;
   int t_s = round(l.t_c * l.duty_factor);
 
-  if (l.gait == PRONK){
+  if (l.gait.id == 5){
     ground_speed = l.theta_slow / t_s;
     recovery_speed = -l.theta_slow / (l.t_c - t_s);
 
@@ -51,7 +45,7 @@ void update_gait_internal_params(leg& l, int startTime){
 
   }
   else{ //all walking gaits (and standing technically)
-    
+
     ground_speed = l.theta_slow / t_s;
     recovery_speed = (theta_circle - l.theta_slow) / (l.t_c - t_s);
 
@@ -77,32 +71,27 @@ void update_gait_internal_params(leg& l, int startTime){
 
 }
 
-//stand forward left back right pronk
-int num_gaits = 6;
-
 /*
 MODIFY THESE ARRAYS TO CONFIGURE ROBOT
 (mini1 and mini2 are our two prototypes, ignore mini2 array if you're only using one robot)
 be sure to set active_mini to 1 in gait_parameters.cpp
 */
-//float mini1Zeros[6] = {-3.22, -6.15, -7.03, -17.29, 0, 4.39}; //miniRHex Black
-float mini1Zeros[6] = {0,0,0,0,0,0}; //miniRHex Orange
-//float mini1Zeros[6] = {0, 1.17, -0.88, 0.29, -1.46, -0.29}; // miniRHex Blue
-//float mini1Zeros[6] = {0.59, -19.04, -1.76, -17.29,-0.59,-15.53}; //miniRHex Purple
+float mini1Zeros[6] = {0,0,0,0,0,0};
 
-float mini2Zeros[6] = {-0.59, -17.87, -1.76, 0.88, -5.27, -1.76};
+float mini2Zeros[6] = {0,0,0,0,0,0};
 int IDS[6] = {1, 2, 3, 4, 5, 6};
 
 ///////////////////////
 
 float *zeros = (active_mini == 1) ? mini1Zeros : mini2Zeros;
 
-leg fake_leg0 = {0, 0, {1,  1,  1,  1, 1},    0,   0,       false, false, false}; //this leg is a spacer in the array, only used to make each leg's index be equal to its number
-leg leg1 =      {IDS[0], 0, {1, -1, -1,  1, 1},    0, zeros[0],  false, false, false};
-leg leg2 =      {IDS[1], 0, {1, -1, -1,  1, 1},    0, zeros[1],  false, false, false};
-leg leg3 =      {IDS[2], 0, {1, -1, -1,  1, 1},    0, zeros[2],  false, false, false};
-leg leg4 =      {IDS[3], 0, {1,  1, -1, -1, 1},    0, zeros[3],  true,  false, false};
-leg leg5 =      {IDS[4], 0, {1,  1, -1, -1, 1},    0, zeros[4],  true,  false, false};
-leg leg6 =      {IDS[5], 0, {1,  1, -1, -1, 1},    0, zeros[5],  true,  false, false};
+leg fake_leg0 = {  0,     0,  stand_gait,    0,      false, false, false}; //this leg is a spacer in the array, only used to make each leg's index be equal to its number
+leg leg1 =      {IDS[0],  0,  stand_gait, zeros[0],  false, false, false};
+leg leg2 =      {IDS[1],  0,  stand_gait, zeros[1],  false, false, false};
+leg leg3 =      {IDS[2],  0,  stand_gait, zeros[2],  false, false, false};
+leg leg4 =      {IDS[3],  0,  stand_gait, zeros[3],  true,  false, false};
+leg leg5 =      {IDS[4],  0,  stand_gait, zeros[4],  true,  false, false};
+leg leg6 =      {IDS[5],  0,  stand_gait, zeros[5],  true,  false, false};
+
 leg legs[] = {fake_leg0, leg1, leg2, leg3, leg4, leg5, leg6};
 

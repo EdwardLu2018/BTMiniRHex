@@ -7,7 +7,7 @@
 vals get_desired_vals_internal(int t, leg l){
   //assume t has been adjusted for phasing
 
-  int forward = l.forwards[l.gait - 1]; //standing is 0: -1 shifts to account for zero indexing
+  int forward = (l.gait).leg_dir[l.id];
   float theta;
   float velocity;
 
@@ -41,6 +41,6 @@ vals get_desired_vals(int t, leg l){ //handles phasing and start time, user prov
 
   float phase = l.phase;
   t = fmodf(elapsed_time + phase * l.t_c, l.t_c);
-  
+
   return get_desired_vals_internal(t, l);
 }

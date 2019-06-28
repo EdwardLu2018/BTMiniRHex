@@ -1,0 +1,6 @@
+{
+    "sketch": "MiniRHex.ino",
+    "board": "OpenCM904:OpenCM904:OpenCM904",
+    "configuration": "upload_method=UploadMethod",
+    "port": "/dev/cu.usbmodem14201"
+}
