@@ -80,7 +80,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         backward.isHidden = false
         left.isHidden = false
         stop.isHidden = false
-        centralManager.stopScan()
         tableView.reloadData()
     }
     
@@ -168,12 +167,12 @@ extension ViewController: CBCentralManagerDelegate {
             peripherals.append(peripheral)
             peripheral.delegate = self
         }
-        print(peripherals)
+//        print(peripherals)
         tableView.reloadData()
     }
     
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-        print("Connected!")
+//        print("Connected!")
         robotPeripheral.discoverServices(nil)
         connected = true
         statusLabel.text = "CONNECTED"
