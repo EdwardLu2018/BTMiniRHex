@@ -1,8 +1,11 @@
-#include "control_parameters.h"
-#include "conversions.h"
 #include <algorithm>    // std::min
-#include <stdio.h>
 #include <math.h>
+#include "conversions.h"
+
+//Inherent to design
+float theta_circle = 360; //theta for one revolution
+float theta_dead = 60; //theta range of deadzone
+float theta_up = 180; //theta of middle of deadzone
 
 //VMaxed tuned on xl320, roughly accurate
 float VMax = 0.8; //ratio of degrees per ms to dynamixel speed units

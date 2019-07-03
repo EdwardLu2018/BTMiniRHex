@@ -2,7 +2,7 @@
 #include <fstream>
 #include "leg_info.h"
 #include "gait_parameters.h"
-#include "control_parameters.h"
+#include "conversions.h"
 
 Leg::Leg(int set_id,
     float set_desired_theta, Gait set_gait,

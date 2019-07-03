@@ -1,6 +1,10 @@
 #ifndef _CONVERSIONS_H
 #define _CONVERSIONS_H
 
+// Inherent to design
+extern float theta_circle; // theta for one revolution
+extern float theta_dead; // theta range of deadzone
+extern float theta_up; // theta of middle of deadzone
 
 // V refers to units used in calculation (degrees per millisecond)
 // dynV refers to command velocity sent to dynamixels (ranges from [0-2048), >1023 is opposite direction)
