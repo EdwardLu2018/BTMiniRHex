@@ -1,5 +1,5 @@
-#ifndef conversions
-#define conversions
+#ifndef _CONVERSIONS_H
+#define _CONVERSIONS_H
 
 
 // V refers to units used in calculation (degrees per millisecond)

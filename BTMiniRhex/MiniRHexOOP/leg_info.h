@@ -1,9 +1,10 @@
-#ifndef leg_info
-#define leg_info
+#ifndef _LEG_INFO_H
+#define _LEG_INFO_H
 
 #include "gait_parameters.h"
 
-class Leg {
+class Leg
+{
   public:
     int id;
     float desired_theta; // only utilized in position control mode
@@ -39,6 +40,7 @@ class Leg {
     bool set_deadzone, bool set_dead_from_neg);
 
     void updateGait(int gait_idx, int startMillis);
+    void setPos(int new_pos);
     void getDesiredVals(int t);
     void getDesiredValsInternal(int t);
 

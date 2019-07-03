@@ -1,5 +1,5 @@
-#ifndef gait_parameters
-#define gait_parameters
+#ifndef _GAIT_PARAMETERS_H
+#define _GAIT_PARAMETERS_H
 
 #define TOTAL_GAITS 6
 

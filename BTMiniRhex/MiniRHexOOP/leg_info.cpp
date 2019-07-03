@@ -83,6 +83,10 @@ void Leg::updateGaitInternalParams(int startTime)
     recovery_speed = recovery_spd;
 }
 
+void Leg::setPos(int new_pos) {
+    desired_theta = new_pos;
+}
+
 void Leg::getDesiredVals(int t) { // handles phasing and start time, user provides get desired vals internal function
   int elapsed_time = t - startMillis;
 
