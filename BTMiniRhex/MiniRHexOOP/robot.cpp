@@ -3,7 +3,7 @@
 #include "conversions.h"
 #include "Arduino-compatibles.h"
 #include "usb_serial.h"
-// #include "QueueArray.h"
+#include "HardwareSerial.h"
 
 Robot::Robot(float set_zeros[7], Dynamixel *dxl) : Dxl(dxl) {
     zeros = set_zeros;
@@ -62,7 +62,7 @@ int Robot::checkBattery() {
       voltage_check = Dxl->readByte(legs[1].id, PRESENT_VOLTAGE);
       if (voltage_check > voltage) voltage = voltage_check;
     }
-    // SerialUSB.println(voltage);
+    SerialUSB.println(voltage);
 
     if (voltage > 73) { //green
       low_battery = 2;
@@ -75,9 +75,9 @@ int Robot::checkBattery() {
     }
 
     if (prev_low_battery != low_battery) {
-        // SerialUSB.println("Should switch led color here");
-        for (int i = 1; i <= legs_active; i++){
-          // Dxl.writeByte(legs[i].id, LED, low_battery);
+        SerialUSB.println("Should switch led color here");
+        for (int i = 1; i <= legs_active; i++) {
+          Dxl->writeByte(legs[i].id, LED, low_battery);
         }
     }
     return voltage;
@@ -101,7 +101,7 @@ void Robot::move() {
       actual_p = Dxl->readWord(legs[i].id, PRESENT_POS);
       actual_theta = P_to_Theta(actual_p); // converted to degrees, relative to leg
       actual_vel = dynV_to_V(Dxl->readWord(legs[i].id, PRESENT_SPEED)); // converted to degrees/ms, relative to leg
-      if (!legs[i].deadzone){
+      if (!legs[i].deadzone) {
 
         if (actual_p == 0 || actual_p == 1023) { //entering deadzone
           legs[i].deadzone = true;
@@ -155,31 +155,31 @@ void Robot::move() {
 
 void Robot::jumpReady() {
   int t_start = millis();
-  for (int i = 1; i <= legs_active; i++){
+  for (int i = 1; i <= legs_active; i++) {
     legs[i].desired_theta = 90;
     legs[i].updateGait(0, t_start);
   }
-  // SerialUSB.println("JUMP READY");
+  SerialUSB.println("JUMP READY");
 }
 
 void Robot::jump() {
   int t_start = millis();
-  while (millis() - t_start < 900){
-    // SerialUSB.println(t_start - millis());
-    if (millis() - t_start > 0){
+  while (millis() - t_start < 900) {
+    SerialUSB.println(t_start - millis());
+    if (millis() - t_start > 0) {
       Dxl->writeWord(1, MOVING_SPEED, 1023);
       Dxl->writeWord(4, MOVING_SPEED, 2047);
     }
-    if (millis() - t_start > 100){
+    if (millis() - t_start > 100) {
       Dxl->writeWord(2, MOVING_SPEED, 1023);
       Dxl->writeWord(5, MOVING_SPEED, 2047);
     }
-    if (millis() - t_start > 190){
+    if (millis() - t_start > 190) {
       Dxl->writeWord(3, MOVING_SPEED, 1023);
       Dxl->writeWord(6, MOVING_SPEED, 2047);
     }
   }
-  for (int i = 1; i <= legs_active; i++){
+  for (int i = 1; i <= legs_active; i++) {
     legs[i].desired_theta = 0;
     legs[i].updateGait(0, t_start);
   }
@@ -189,9 +189,9 @@ void Robot::checkForBT() {
   // bluetooth control
   if (Serial2.available()) {
     char a = (char)(Serial2.read());
-    // SerialUSB.println(a);
+    SerialUSB.println(a);
     int bt_gait_idx = -1;
-    switch (a){
+    switch (a) {
     case 'q':
       bt_gait_idx = 0;
       break; //stand
