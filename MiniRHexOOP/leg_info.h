@@ -6,7 +6,7 @@
 class Leg
 {
   public:
-    int id;
+    unsigned short id;
     float desired_theta; // only utilized in position control mode
     Gait gait; // current gait
     float zero;

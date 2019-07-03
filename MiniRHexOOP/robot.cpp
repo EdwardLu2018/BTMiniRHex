@@ -16,7 +16,7 @@ Robot::Robot(float set_zeros[6], Dynamixel *dxl) : Dxl(dxl) {
     kd_hold = 1.0;
 
     packet_length = 2*legs_active;
-    packet[packet_length];
+    // packet[packet_length];
 
     low_battery = 1; // 1 = red, 3 = yellow, 2 = green
     prev_low_battery = 0;
@@ -95,60 +95,75 @@ float Robot::pd_calc(float theta_act, float theta_des,
 }
 
 void Robot::move() {
+    word packet[packet_length];
+
     // primary for-loop
     for(int i = 1; i <= legs_active; i++) {
-      packet[(i-1) * 2] = legs[i].id;
-      actual_p = Dxl->readWord(legs[i].id, PRESENT_POS);
-      actual_theta = P_to_Theta(actual_p); // converted to degrees, relative to leg
-      actual_vel = dynV_to_V(Dxl->readWord(legs[i].id, PRESENT_SPEED)); // converted to degrees/ms, relative to leg
-      if (!legs[i].deadzone) {
+        packet[(i-1) * 2] = legs[i].id;
+        actual_p = Dxl->readWord(legs[i].id, PRESENT_POS);
+        actual_theta = P_to_Theta(actual_p); // converted to degrees, relative to leg
+        actual_vel = dynV_to_V(Dxl->readWord(legs[i].id, PRESENT_SPEED)); // converted to degrees/ms, relative to leg
 
-        if (actual_p == 0 || actual_p == 1023) { //entering deadzone
-          legs[i].deadzone = true;
-          if (actual_p == 0) legs[i].dead_from_neg = true;
-          else legs[i].dead_from_neg = false;
-          continue;
-        }
+        if (!legs[i].deadzone) {
+            if (actual_p == 0 || actual_p == 1023) { //entering deadzone
+                legs[i].deadzone = true;
+                if (actual_p == 0) legs[i].dead_from_neg = true;
+                else legs[i].dead_from_neg = false;
+                continue;
+            }
 
-        if (legs[i].gait.id == 0) { // standing or sitting
-          if (legs[i].right_side) {
-            desired_theta = Theta_to_ThetaR(legs[i].desired_theta);
-          }
-          else {
-            desired_theta = legs[i].desired_theta;
-          }
-          actual_theta = actual_theta - legs[i].zero; //zero out leg thetas, accounts for small servo irregularities
-          control_signal = pd_calc(actual_theta, desired_theta, actual_vel, 0, kp_hold, kd_hold);
+            if (legs[i].gait.id == 0) { // standing or sitting
+                if (legs[i].right_side) {
+                    desired_theta = Theta_to_ThetaR(legs[i].desired_theta);
+                }
+                else {
+                    desired_theta = legs[i].desired_theta;
+                }
+                actual_theta = actual_theta - legs[i].zero; //zero out leg thetas, accounts for small servo irregularities
+                control_signal = pd_calc(actual_theta, desired_theta, actual_vel, 0, kp_hold, kd_hold);
         }
         else { // walking, turning
-          // compute absolute desired values (theta and velocity) from clock time
-          legs[i].getDesiredVals(millis());
-          // translate theta and v to relative (left and right)
-          if (legs[i].right_side) {
-            desired_vel = -legs[i].global_velocity; //relative
-            desired_theta = Theta_to_ThetaR(legs[i].global_theta); // relative
-          }
-          else { // left side, relative is same as global
-            desired_vel = legs[i].global_velocity;
-            desired_theta = legs[i].global_theta;
-          }
-          actual_theta = actual_theta - legs[i].zero;
+            // compute absolute desired values (theta and velocity) from clock time
+            legs[i].getDesiredVals(millis());
+            // translate theta and v to relative (left and right)
+            if (legs[i].right_side) {
+                desired_vel = -legs[i].global_velocity; //relative
+                desired_theta = Theta_to_ThetaR(legs[i].global_theta); // relative
+            }
+            else { // left side, relative is same as global
+                desired_vel = legs[i].global_velocity;
+                desired_theta = legs[i].global_theta;
+            }
+            actual_theta = actual_theta - legs[i].zero;
 
-          control_signal = pd_calc(actual_theta, desired_theta, actual_vel, desired_vel, legs[i].kp, legs[i].kd);
+            control_signal = pd_calc(actual_theta, desired_theta, actual_vel, desired_vel, legs[i].kp, legs[i].kd);
         }
 
         int new_vel = V_to_dynV(actual_vel + control_signal);
-        packet[(i-1) * 2 + 1] = new_vel;
-      }
-
-      else { //deadzone
-        if ((actual_p > 0) & (actual_p < dead_buffer) || (actual_p < 1023) & (actual_p > 1023 -dead_buffer)) { //exiting deadzone
-          legs[i].deadzone = false;
+            packet[(i-1) * 2 + 1] = new_vel;
         }
-        float signed_recovery_speed = legs[i].dead_from_neg == true ? -legs[i].recovery_speed : legs[i].recovery_speed;
-        packet[(i-1) * 2 + 1] = V_to_dynV(signed_recovery_speed);
-      }
+
+        else { //deadzone
+            if ((actual_p > 0) & (actual_p < dead_buffer) || (actual_p < 1023) & (actual_p > 1023 -dead_buffer)) { //exiting deadzone
+              legs[i].deadzone = false;
+            }
+            float signed_recovery_speed = legs[i].dead_from_neg == true ? -legs[i].recovery_speed : legs[i].recovery_speed;
+            packet[(i-1) * 2 + 1] = V_to_dynV(signed_recovery_speed);
+        }
     }
+
+    SerialUSB.println(packet[0]);
+    SerialUSB.println(packet[1]);
+    SerialUSB.println(packet[2]);
+    SerialUSB.println(packet[3]);
+    SerialUSB.println(packet[4]);
+    SerialUSB.println(packet[5]);
+    SerialUSB.println(packet[6]);
+    SerialUSB.println(packet[7]);
+    SerialUSB.println(packet[8]);
+    SerialUSB.println(packet[9]);
+    SerialUSB.println(packet[10]);
+    SerialUSB.println(packet[11]);
 
     Dxl->syncWrite(MOVING_SPEED, 1, packet, packet_length); //simultaneously write to each of 6 servoes with updated commands
 }

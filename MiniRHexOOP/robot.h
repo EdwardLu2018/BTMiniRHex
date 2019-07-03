@@ -58,7 +58,7 @@ class Robot
 
         // Packet Setup //
         int packet_length;
-        word *packet;
+        // word *packet;
 
         // Battery Check //
         int low_battery; // 1 = red, 3 = yellow, 2 = green
