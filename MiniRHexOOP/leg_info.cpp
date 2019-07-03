@@ -83,7 +83,7 @@ void Leg::updateGaitInternalParams(int startTime)
     recovery_speed = recovery_spd;
 }
 
-void Leg::setPos(int new_pos) {
+void Leg::setDesiredTheta(int new_pos) {
     desired_theta = new_pos;
 }
 

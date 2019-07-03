@@ -38,9 +38,9 @@ class Leg
     float set_desired_theta, Gait set_gait,
     float set_zero, bool set_right_side,
     bool set_deadzone, bool set_dead_from_neg);
-
+    ~Leg() {};
     void updateGait(int gait_idx, int startMillis);
-    void setPos(int new_pos);
+    void setDesiredTheta(int new_pos);
     void getDesiredVals(int t);
     void getDesiredValsInternal(int t);
 

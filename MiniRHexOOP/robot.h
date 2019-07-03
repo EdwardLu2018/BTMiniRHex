@@ -17,13 +17,17 @@
 class Robot
 {
     public:
+        // Dynamixel Object
         Dynamixel *Dxl;
 
+        // Servo zeros
         float *zeros;
+
+        Gait *gaits;
 
         int gait_idx;
 
-        //Rewritable globals
+        // Rewritable globals
         float desired_vel;
         float desired_theta;
         float actual_vel;
@@ -32,6 +36,7 @@ class Robot
         float actual_p;
 
         Robot(float set_zeros[7], Dynamixel *dxl);
+        ~Robot() {};
         void setup();
         int checkBattery();
         void addGait();
@@ -41,6 +46,7 @@ class Robot
         void jump();
         void move();
         void checkForBT();
+        void printServoPositions();
 
     private:
         //Deadzone

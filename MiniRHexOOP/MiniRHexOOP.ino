@@ -1,10 +1,11 @@
 #include "robot.h"
+#include <vector>
 
 // Dynamixel Setup //
 #define DXL_BUS_SERIAL1 1  //Dynamixel on Serial1(USART1) <-OpenCM9.04
 Dynamixel dxl(DXL_BUS_SERIAL1);
 
-float mini1zeros[7] = {0, 0, 0, 0, 0, 0};
+float mini1zeros[6] = {0, 0, 0, 0, 0, 0};
 Robot minirhex(mini1zeros, &dxl);
 
 // Button Setup //
@@ -14,12 +15,12 @@ int last_button_state = 0;
 void handle_button_press() {
     button_state = digitalRead(BOARD_BUTTON_PIN);
     if (button_state > last_button_state) {
-        digitalWrite(BOARD_LED_PIN, LOW); //turn led on
+        digitalWrite(BOARD_LED_PIN, LOW); // turn led on
         int new_gait_idx = minirhex.incrementGait(); // change to next gait
         SerialUSB.println(new_gait_idx);
     }
     else if (button_state < last_button_state) {
-        digitalWrite(BOARD_LED_PIN, HIGH); //turn led off
+        digitalWrite(BOARD_LED_PIN, HIGH); // turn led off
     }
     last_button_state = button_state;
 }

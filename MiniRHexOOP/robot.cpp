@@ -5,7 +5,7 @@
 #include "usb_serial.h"
 #include "HardwareSerial.h"
 
-Robot::Robot(float set_zeros[7], Dynamixel *dxl) : Dxl(dxl) {
+Robot::Robot(float set_zeros[6], Dynamixel *dxl) : Dxl(dxl) {
     zeros = set_zeros;
 
     dead_buffer = 40;
@@ -34,7 +34,7 @@ void Robot::setup() {
     Dxl->begin(3); // baudrate set to 1 Mbps (max)
     int t_start = millis();
     for (int i = 1; i <= legs_active; i++) { // legs stored at their index
-        // Dxl.wheelMode(legs[i].id); // change servo to wheel mode
+        Dxl->wheelMode(legs[i].id); // change servo to wheel mode
         legs[i].updateGait(gait_idx, t_start); // set initial parameters, initial_gait in gait_parameters
     }
 }
@@ -150,13 +150,13 @@ void Robot::move() {
       }
     }
 
-    // Dxl.syncWrite(MOVING_SPEED, 1, packet, packet_length); //simultaneously write to each of 6 servoes with updated commands
+    Dxl->syncWrite(MOVING_SPEED, 1, packet, packet_length); //simultaneously write to each of 6 servoes with updated commands
 }
 
 void Robot::jumpReady() {
   int t_start = millis();
   for (int i = 1; i <= legs_active; i++) {
-    legs[i].desired_theta = 90;
+    legs[i].setDesiredTheta(90);
     legs[i].updateGait(0, t_start);
   }
   SerialUSB.println("JUMP READY");
@@ -224,4 +224,12 @@ void Robot::checkForBT() {
       updateGait();
     }
   }
+}
+
+void Robot::printServoPositions() {
+    for (int i = 1; i < 7; i++){
+        SerialUSB.print(i);
+        SerialUSB.print(": ");
+        SerialUSB.println(P_to_Theta(Dxl->readWord(i, PRESENT_POS)));
+    }
 }
