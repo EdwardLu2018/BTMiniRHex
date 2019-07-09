@@ -16,12 +16,12 @@ Leg::Leg(int set_id,
     right_side = set_right_side;
     deadzone = set_deadzone;
     dead_from_neg = set_dead_from_neg;
-    updateGait(0, 0);
+    updateGait(stand_gait, 0);
 }
 
-void Leg::updateGait(int gait_idx, int startMillis)
+void Leg::updateGait(Gait new_gait, int startMillis)
 {
-    Gait new_gait = all_gaits[gait_idx];
+    // Gait new_gait = all_gaits[gait_idx];
     gait = new_gait;
     theta_slow = new_gait.theta_s[id];
     theta_down = new_gait.theta_d[id];
@@ -127,30 +127,3 @@ void Leg::getDesiredValsInternal(int t) { // assume t has been adjusted for phas
   global_velocity = velocity;
 
 }
-
-
-int active_mini = 1;
-
-/*
-MODIFY THESE ARRAYS TO CONFIGURE ROBOT
-(mini1 and mini2 are our two prototypes, ignore mini2 array if you're only using one robot)
-be sure to set active_mini to 1 above
-*/
-float mini1Zeros[6] = {0, 0, 0, 0, 0, 0};
-float mini2Zeros[6] = {0, 0, 0, 0, 0, 0};
-
-int IDS[6] = {1, 2, 3, 4, 5, 6};
-
-//////////////////////////////////////////
-
-float *zeros = (active_mini == 1) ? mini1Zeros : mini2Zeros;
-
-Leg fake_leg0(  0,    0, stand_gait,     0,    false, false, false); // this leg is a spacer in the array, only used to make each leg's index be equal to its number
-Leg leg1     (1, 0, stand_gait, zeros[0], false, false, false);
-Leg leg2     (2, 0, stand_gait, zeros[1], false, false, false);
-Leg leg3     (3, 0, stand_gait, zeros[2], false, false, false);
-Leg leg4     (4, 0, stand_gait, zeros[3],  true, false, false);
-Leg leg5     (5, 0, stand_gait, zeros[4],  true, false, false);
-Leg leg6     (6, 0, stand_gait, zeros[5],  true, false, false);
-
-Leg legs[7] = {fake_leg0, leg1, leg2, leg3, leg4, leg5, leg6};

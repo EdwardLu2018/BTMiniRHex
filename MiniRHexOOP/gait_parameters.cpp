@@ -61,7 +61,7 @@ float leg6_phase = 0;
 // -------------------------------------- //
 
 Gait stand_gait {
-    0,
+    STAND,
     kp_walk, kd_walk,
     {0, leg1_sweep, leg2_sweep, leg3_sweep, leg4_sweep, leg5_sweep, leg6_sweep},
     {0, leg1_down, leg2_down, leg3_down, leg4_down, leg5_down, leg6_down},
@@ -72,7 +72,7 @@ Gait stand_gait {
 };
 
 Gait walk_gait {
-    1,
+    WALK,
     kp_walk, kd_walk,
     {0, leg1_sweep, leg2_sweep, leg3_sweep, leg4_sweep, leg5_sweep, leg6_sweep},
     {0, leg1_down, leg2_down, leg3_down, leg4_down, leg5_down, leg6_down},
@@ -83,7 +83,7 @@ Gait walk_gait {
 };
 
 Gait reverse_gait {
-    2,
+    REVERSE,
     kp_walk, kd_walk,
     {0, leg1_sweep, leg2_sweep, leg3_sweep, leg4_sweep, leg5_sweep, leg6_sweep},
     {0, leg1_down, leg2_down, leg3_down, leg4_down, leg5_down, leg6_down},
@@ -94,7 +94,7 @@ Gait reverse_gait {
 };
 
 Gait left_gait {
-    3,
+    LEFT,
     kp_walk, kd_walk,
     {0, leg1_sweep, leg2_sweep, leg3_sweep, leg4_sweep, leg5_sweep, leg6_sweep},
     {0, leg1_down, leg2_down, leg3_down, leg4_down, leg5_down, leg6_down},
@@ -105,7 +105,7 @@ Gait left_gait {
 };
 
 Gait right_gait {
-    4,
+    RIGHT,
     kp_walk, kd_walk,
     {0, leg1_sweep, leg2_sweep, leg3_sweep, leg4_sweep, leg5_sweep, leg6_sweep},
     {0, leg1_down, leg2_down, leg3_down, leg4_down, leg5_down, leg6_down},
@@ -122,7 +122,7 @@ float kp_pronk = 0.03; //.1
 float kd_pronk = 1.0; //1.5
 
 Gait pronk_gait {
-    5,
+    PRONK,
     kp_pronk, kd_pronk,
     {pronk_sweep, pronk_sweep, pronk_sweep, pronk_sweep, pronk_sweep, pronk_sweep, pronk_sweep},
     {0, -45, -55, -75, -45, -55, -75},

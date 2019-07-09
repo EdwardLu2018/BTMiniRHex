@@ -1,9 +1,31 @@
 #include "robot.h"
-#include "globals.h"
 #include "conversions.h"
 #include "Arduino-compatibles.h"
 #include "usb_serial.h"
 #include "HardwareSerial.h"
+
+Robot::Robot(Dynamixel *dxl) : Dxl(dxl) {
+    dead_buffer = 40;
+
+    legs_active = 6;
+
+    kp_hold = 0.008;
+    kd_hold = 1.0;
+
+    packet_length = 2*legs_active;
+    // packet[packet_length];
+
+    low_battery = 1; // 1 = red, 3 = yellow, 2 = green
+    prev_low_battery = 0;
+
+    legs[0] = Leg(0, 0, stand_gait, 0, false, false, false); // this leg is a spacer in the array, only used to make each leg's index be equal to its number
+    legs[1] = Leg(1, 0, stand_gait, 0, false, false, false);
+    legs[2] = Leg(2, 0, stand_gait, 0, false, false, false);
+    legs[3] = Leg(3, 0, stand_gait, 0, false, false, false);
+    legs[4] = Leg(4, 0, stand_gait, 0,  true, false, false);
+    legs[5] = Leg(5, 0, stand_gait, 0,  true, false, false);
+    legs[6] = Leg(6, 0, stand_gait, 0,  true, false, false);
+}
 
 Robot::Robot(float set_zeros[6], Dynamixel *dxl) : Dxl(dxl) {
     zeros = set_zeros;
@@ -35,23 +57,19 @@ void Robot::setup() {
     int t_start = millis();
     for (int i = 1; i <= legs_active; i++) { // legs stored at their index
         Dxl->wheelMode(legs[i].id); // change servo to wheel mode
-        legs[i].updateGait(gait_idx, t_start); // set initial parameters, initial_gait in gait_parameters
+        legs[i].updateGait(stand_gait, t_start); // set initial parameters, initial_gait in gait_parameters
     }
-}
-
-void Robot::addGait() {
-    return;
 }
 
 int Robot::incrementGait() {
     gait_idx = (gait_idx + 1) % TOTAL_GAITS;
-    return updateGait();
+    return updateGait(all_gaits[gait_idx]);
 }
 
-int Robot::updateGait() {
+int Robot::updateGait(Gait gait) {
     int t_start = millis();
     for(int i = 1; i <= legs_active; i++) {
-      legs[i].updateGait(gait_idx, t_start);
+      legs[i].updateGait(gait, t_start);
     }
     return gait_idx;
 }
@@ -94,7 +112,7 @@ float Robot::pd_calc(float theta_act, float theta_des,
   return kp * dtheta + kd * dv;
 }
 
-void Robot::move() {
+void Robot::update() {
     word packet[packet_length];
 
     // primary for-loop
@@ -152,19 +170,6 @@ void Robot::move() {
         }
     }
 
-    SerialUSB.println(packet[0]);
-    SerialUSB.println(packet[1]);
-    SerialUSB.println(packet[2]);
-    SerialUSB.println(packet[3]);
-    SerialUSB.println(packet[4]);
-    SerialUSB.println(packet[5]);
-    SerialUSB.println(packet[6]);
-    SerialUSB.println(packet[7]);
-    SerialUSB.println(packet[8]);
-    SerialUSB.println(packet[9]);
-    SerialUSB.println(packet[10]);
-    SerialUSB.println(packet[11]);
-
     Dxl->syncWrite(MOVING_SPEED, 1, packet, packet_length); //simultaneously write to each of 6 servoes with updated commands
 }
 
@@ -172,7 +177,7 @@ void Robot::jumpReady() {
   int t_start = millis();
   for (int i = 1; i <= legs_active; i++) {
     legs[i].setDesiredTheta(90);
-    legs[i].updateGait(0, t_start);
+    legs[i].updateGait(stand_gait, t_start);
   }
   SerialUSB.println("JUMP READY");
 }
@@ -196,7 +201,7 @@ void Robot::jump() {
   }
   for (int i = 1; i <= legs_active; i++) {
     legs[i].desired_theta = 0;
-    legs[i].updateGait(0, t_start);
+    legs[i].updateGait(stand_gait, t_start);
   }
 }
 
@@ -236,7 +241,7 @@ void Robot::checkForBT() {
     if (bt_gait_idx != -1) {
       int t_start = millis();
       gait_idx = bt_gait_idx;
-      updateGait();
+      updateGait(all_gaits[gait_idx]);
     }
   }
 }

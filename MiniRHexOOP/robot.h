@@ -23,8 +23,6 @@ class Robot
         // Servo zeros
         float *zeros;
 
-        Gait *gaits;
-
         int gait_idx;
 
         // Rewritable globals
@@ -35,16 +33,16 @@ class Robot
         float control_signal;
         float actual_p;
 
+        Robot(Dynamixel *dxl);
         Robot(float set_zeros[7], Dynamixel *dxl);
         ~Robot() {};
         void setup();
         int checkBattery();
-        void addGait();
         int incrementGait();
-        int updateGait();
+        int updateGait(Gait gait);
         void jumpReady();
         void jump();
-        void move();
+        void update();
         void checkForBT();
         void printServoPositions();
 
@@ -59,6 +57,8 @@ class Robot
         // Packet Setup //
         int packet_length;
         // word *packet;
+
+        int index;
 
         // Battery Check //
         int low_battery; // 1 = red, 3 = yellow, 2 = green
