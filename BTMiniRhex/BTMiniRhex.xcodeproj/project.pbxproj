@@ -7,22 +7,24 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2BD8EB3A22DD53CB00A6A1E6 /* PeripheralViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD8EB3922DD53CB00A6A1E6 /* PeripheralViewController.swift */; };
+		2BD8EB3C22DD55FD00A6A1E6 /* PeripheralTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD8EB3B22DD55FD00A6A1E6 /* PeripheralTableViewCell.swift */; };
 		2BE7A89122C5B7ED0032F1C0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE7A89022C5B7ED0032F1C0 /* AppDelegate.swift */; };
 		2BE7A89B22C5B7F10032F1C0 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2BE7A89922C5B7F10032F1C0 /* LaunchScreen.storyboard */; };
 		2BE7A8A322C5B7FC0032F1C0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2BE7A8A222C5B7FC0032F1C0 /* Assets.xcassets */; };
 		2BE7A8A522C5B8320032F1C0 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE7A8A422C5B8320032F1C0 /* ViewController.swift */; };
-		2BE7A8A722C5B8380032F1C0 /* TableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE7A8A622C5B8370032F1C0 /* TableViewCell.swift */; };
 		2BE7A8A922C5B8760032F1C0 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2BE7A8A822C5B8750032F1C0 /* Main.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2BD8EB3922DD53CB00A6A1E6 /* PeripheralViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeripheralViewController.swift; sourceTree = "<group>"; };
+		2BD8EB3B22DD55FD00A6A1E6 /* PeripheralTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeripheralTableViewCell.swift; sourceTree = "<group>"; };
 		2BE7A88D22C5B7ED0032F1C0 /* BTMiniRhex.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BTMiniRhex.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BE7A89022C5B7ED0032F1C0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2BE7A89A22C5B7F10032F1C0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2BE7A89C22C5B7F10032F1C0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2BE7A8A222C5B7FC0032F1C0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2BE7A8A422C5B8320032F1C0 /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		2BE7A8A622C5B8370032F1C0 /* TableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableViewCell.swift; sourceTree = "<group>"; };
 		2BE7A8A822C5B8750032F1C0 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -57,8 +59,9 @@
 			isa = PBXGroup;
 			children = (
 				2BE7A89022C5B7ED0032F1C0 /* AppDelegate.swift */,
-				2BE7A8A622C5B8370032F1C0 /* TableViewCell.swift */,
 				2BE7A8A422C5B8320032F1C0 /* ViewController.swift */,
+				2BD8EB3922DD53CB00A6A1E6 /* PeripheralViewController.swift */,
+				2BD8EB3B22DD55FD00A6A1E6 /* PeripheralTableViewCell.swift */,
 				2BE7A8A822C5B8750032F1C0 /* Main.storyboard */,
 				2BE7A8A222C5B7FC0032F1C0 /* Assets.xcassets */,
 				2BE7A89922C5B7F10032F1C0 /* LaunchScreen.storyboard */,
@@ -143,8 +146,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2BE7A8A722C5B8380032F1C0 /* TableViewCell.swift in Sources */,
+				2BD8EB3A22DD53CB00A6A1E6 /* PeripheralViewController.swift in Sources */,
 				2BE7A8A522C5B8320032F1C0 /* ViewController.swift in Sources */,
+				2BD8EB3C22DD55FD00A6A1E6 /* PeripheralTableViewCell.swift in Sources */,
 				2BE7A89122C5B7ED0032F1C0 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

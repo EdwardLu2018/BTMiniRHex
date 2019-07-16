@@ -1,16 +1,16 @@
 //
-//  TableViewCell.swift
-//  BTTest-MiniRhex
+//  PeripheralTableViewCell.swift
+//  BTMiniRhex
 //
-//  Created by Edward on 6/27/19.
+//  Created by Edward on 7/15/19.
 //  Copyright © 2019 Edward. All rights reserved.
 //
 
 import UIKit
 
-class TableViewCell: UITableViewCell {
+class PeripheralTableViewCell: UITableViewCell {
 
-    @IBOutlet weak var title: UILabel!
+    @IBOutlet weak var peripheralID: UILabel!
     
     override func awakeFromNib() {
         super.awakeFromNib()

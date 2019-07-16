@@ -9,7 +9,12 @@
 import UIKit
 import CoreBluetooth
 
-class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+protocol CBControl {
+    var peripherals:[CBPeripheral] { get set }
+    func scan()
+}
+
+class ViewController: UIViewController, CBControl {
     
     var centralManager: CBCentralManager!
     var robotPeripheral: CBPeripheral!
@@ -24,15 +29,38 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     @IBOutlet weak var stop: UIButton!
     @IBOutlet weak var connect: UIButton!
     @IBOutlet weak var statusLabel: UILabel!
-    @IBOutlet weak var tableView: UITableView!
     
-    static let kUartServiceUUID = CBUUID(string: "6e400001-b5a3-f393-e0a9-e50e24dcca9e")
-    static let kUartTxCharacteristicUUID = CBUUID(string: "6e400002-b5a3-f393-e0a9-e50e24dcca9e")
-    static let kUartRxCharacteristicUUID = CBUUID(string: "6e400003-b5a3-f393-e0a9-e50e24dcca9e")
+    let kUartServiceUUID = CBUUID(string: "6e400001-b5a3-f393-e0a9-e50e24dcca9e")
+    let kUartTxCharacteristicUUID = CBUUID(string: "6e400002-b5a3-f393-e0a9-e50e24dcca9e")
+    let kUartRxCharacteristicUUID = CBUUID(string: "6e400003-b5a3-f393-e0a9-e50e24dcca9e")
     
     var targetService: CBService?
     var TxCharacteristic: CBCharacteristic?
     var RxCharacteristic: CBCharacteristic?
+    
+    enum PeripheralVCState {
+        case expanded
+        case collapsed
+    }
+    
+    var peripheralVCVisible = false
+    
+    func nextPeripheralVCState() -> PeripheralVCState {
+        return peripheralVCVisible ? .collapsed : .expanded
+    }
+    
+    var peripheralViewController: PeripheralViewController!
+    var visualEffectView: UIVisualEffectView!
+    
+    let peripheralVCHeight: CGFloat = 600
+    let peripheralVCHandleArea: CGFloat = 50
+    
+    var runningAnimations = [UIViewPropertyAnimator]()
+    var animationProgressWhenInterrupted: CGFloat = 0
+    
+    var panGestureRecognizer = UIPanGestureRecognizer()
+    
+    var loadingIndicator: UIActivityIndicatorView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,110 +68,188 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         centralManager = CBCentralManager(delegate: self, queue: nil)
         statusLabel.text = "Scanning for MiniRHexs..."
         
-        forward.isHidden = true
-        right.isHidden = true
-        backward.isHidden = true
-        left.isHidden = true
-        stop.isHidden = true
-        
-        tableView.dataSource = self
-        tableView.delegate = self
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
+        setUpSongViewController()
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        self.tableView.center.y += self.tableView.bounds.height
-        UIView.animate(withDuration: 1) {
-            self.tableView.center.y -= self.tableView.bounds.height
+        setupLoading()
+    }
+    
+    func setupLoading() {
+        loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: self.view.center.x - 25, y: connect.center.y + 20, width: 50, height: 50))
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.style = UIActivityIndicatorView.Style.gray
+        loadingIndicator.startAnimating()
+        
+        view.addSubview(loadingIndicator)
+        view.sendSubviewToBack(loadingIndicator)
+    }
+    
+    func setUpSongViewController() {
+        visualEffectView = UIVisualEffectView()
+        visualEffectView.frame = self.view.frame
+        self.view.addSubview(visualEffectView)
+        self.view.sendSubviewToBack(visualEffectView)
+        
+        if let peripheralViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "peripheralView") as? PeripheralViewController {
+            self.peripheralViewController = peripheralViewController
+            self.addChild(peripheralViewController)
+            self.view.addSubview(peripheralViewController.view)
+            
+            peripheralViewController.view.frame = CGRect(x: 0.0, y: self.view.frame.height - peripheralVCHandleArea, width: self.view.bounds.width, height: peripheralVCHeight)
+            
+            peripheralViewController.view.clipsToBounds = true
+            peripheralViewController.delegate = self
+            
+            panGestureRecognizer = UIPanGestureRecognizer()
+            panGestureRecognizer.addTarget(self, action: #selector(handleDataPan))
+            peripheralViewController.handleArea.addGestureRecognizer(panGestureRecognizer)
         }
     }
     
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return peripherals.count
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        robotPeripheral = peripherals[indexPath.row]
-        tableView.isHidden = true
-        UIView.animate(withDuration: 0.75) {
-            self.tableView.alpha = 0.0
+    @objc
+    func handleDataPan(recognizer: UIPanGestureRecognizer) {
+        switch recognizer.state {
+        case .began:
+            startTransition(state: nextPeripheralVCState(), duration: 1.0)
+        case .changed:
+            let translation = recognizer.translation(in: self.peripheralViewController.handleArea)
+            var fractionComplete = translation.y / peripheralVCHeight
+            fractionComplete = peripheralVCVisible ? fractionComplete : -fractionComplete
+            updateTransition(fractionCompleted: fractionComplete)
+        case .ended:
+            continueTransition()
+        default:
+            break
         }
-        centralManager.connect(robotPeripheral)
-        forward.isHidden = false
-        right.isHidden = false
-        backward.isHidden = false
-        left.isHidden = false
-        stop.isHidden = false
-        tableView.reloadData()
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: "miniRHexCell", for: indexPath) as? TableViewCell else {
-            fatalError("The dequeued cell is not an instance of SongTableViewCell.")
+    func animateTransitionIfNeeded(state: PeripheralVCState, duration: TimeInterval) {
+        if runningAnimations.isEmpty {
+            let frameAnimator = UIViewPropertyAnimator(duration: duration, dampingRatio: 0.85) {
+                switch state {
+                case .expanded:
+                    self.peripheralViewController.view.frame.origin.y = self.view.frame.height - self.peripheralVCHeight
+                case .collapsed:
+                    self.peripheralViewController.view.frame.origin.y = self.view.frame.height - self.peripheralVCHandleArea
+                }
+            }
+            frameAnimator.addCompletion { _ in
+                self.peripheralVCVisible = !self.peripheralVCVisible
+                self.runningAnimations.removeAll()
+            }
+            frameAnimator.startAnimation()
+            runningAnimations.append(frameAnimator)
+            
+            let cornerRadiusAnimator = UIViewPropertyAnimator(duration: duration, curve: .linear) {
+                switch state {
+                case .expanded:
+                    self.peripheralViewController.view.layer.cornerRadius = 15
+                case .collapsed:
+                    self.peripheralViewController.view.layer.cornerRadius = 7
+                }
+            }
+            cornerRadiusAnimator.startAnimation()
+            runningAnimations.append(cornerRadiusAnimator)
+            
+            let blurAnimator = UIViewPropertyAnimator(duration: duration, dampingRatio: 1) {
+                switch state {
+                case .expanded:
+                    self.visualEffectView.effect = UIBlurEffect(style: .dark)
+                    
+                case .collapsed:
+                    self.visualEffectView.effect = nil
+                }
+            }
+            blurAnimator.startAnimation()
+            runningAnimations.append(blurAnimator)
+            
+            let rotateAnimator = UIViewPropertyAnimator(duration: duration, dampingRatio: 1) {
+                switch state {
+                case .expanded:
+                    self.peripheralViewController.handleImage.transform = CGAffineTransform(rotationAngle: CGFloat(Double.pi))
+                case .collapsed:
+                    self.peripheralViewController.handleImage.transform = CGAffineTransform(rotationAngle: 0)
+                }
+            }
+            rotateAnimator.startAnimation()
+            runningAnimations.append(rotateAnimator)
         }
-        cell.title.text = peripherals[indexPath.row].identifier.uuidString
-        return cell
     }
     
-    func sendData(value: Int8) {
-        guard let peripheral = robotPeripheral, let characteristic = TxCharacteristic else { return }
+    func startTransition(state: PeripheralVCState, duration: TimeInterval) {
+        if runningAnimations.isEmpty {
+            animateTransitionIfNeeded(state: state, duration: duration)
+        }
+        for animator in runningAnimations {
+            animator.pauseAnimation()
+            animationProgressWhenInterrupted = animator.fractionComplete
+        }
+    }
+    
+    func updateTransition(fractionCompleted: CGFloat) {
+        for animator in runningAnimations {
+            animator.fractionComplete = fractionCompleted + animationProgressWhenInterrupted
+        }
+    }
+    
+    func continueTransition() {
+        for animator in runningAnimations {
+            animator.continueAnimation(withTimingParameters: nil, durationFactor: 0)
+        }
+    }
+    
+    func sendData(value: Int8) -> Bool {
+        guard let peripheral = robotPeripheral, let characteristic = TxCharacteristic else { return false }
         peripheral.writeValue(Data.dataWithValue(value: value), for: characteristic, type: .withResponse)
+        return true
     }
     
     func scan() {
-        centralManager.scanForPeripherals(withServices: [ViewController.kUartServiceUUID, ViewController.kUartTxCharacteristicUUID, ViewController.kUartRxCharacteristicUUID], options: nil)
+        print("scanning")
+        centralManager.scanForPeripherals(withServices: [kUartServiceUUID, kUartTxCharacteristicUUID, kUartRxCharacteristicUUID], options: nil)
     }
     
     @IBAction func connectionButtonDidPress(_ sender: Any) {
         if robotPeripheral != nil {
             centralManager.cancelPeripheralConnection(robotPeripheral)
             statusLabel.text = "DISCONNECTED"
-            tableView.isHidden = false
-            UIView.animate(withDuration: 0.75) {
-                self.tableView.alpha = 1.0
-            }
-            forward.isHidden = true
-            right.isHidden = true
-            backward.isHidden = true
-            left.isHidden = true
-            stop.isHidden = true
         }
     }
     
     @IBAction func forwardDidPress(_ sender: Any) {
         let val = Int8(Array("w".utf8)[0])
-        sendData(value: val)
-        statusLabel.text = "Sent a: \(Character(UnicodeScalar(Int(val))!))"
+        if sendData(value: val) {
+            statusLabel.text = "Sent a: \(Character(UnicodeScalar(Int(val))!))"
+        }
     }
     
     @IBAction func rightDidPress(_ sender: Any) {
         let val = Int8(Array("d".utf8)[0])
-        sendData(value: val)
-        statusLabel.text = "Sent a: \(Character(UnicodeScalar(Int(val))!))"
+        if sendData(value: val) {
+            statusLabel.text = "Sent a: \(Character(UnicodeScalar(Int(val))!))"
+        }
     }
     
     @IBAction func backwardDidPress(_ sender: Any) {
         let val = Int8(Array("s".utf8)[0])
-        sendData(value: val)
-        statusLabel.text = "Sent a: \(Character(UnicodeScalar(Int(val))!))"
+        if sendData(value: val) {
+            statusLabel.text = "Sent a: \(Character(UnicodeScalar(Int(val))!))"
+        }
     }
     
     @IBAction func leftDidPress(_ sender: Any) {
         let val = Int8(Array("a".utf8)[0])
-        sendData(value: val)
-        statusLabel.text = "Sent a: \(Character(UnicodeScalar(Int(val))!))"
+        if sendData(value: val) {
+            statusLabel.text = "Sent a: \(Character(UnicodeScalar(Int(val))!))"
+        }
     }
     
     @IBAction func stopDidPress(_ sender: Any) {
         let val = Int8(Array("q".utf8)[0])
-        sendData(value: val)
-        statusLabel.text = "Sent a: \(Character(UnicodeScalar(Int(val))!))"
+        if sendData(value: val) {
+            statusLabel.text = "Sent a: \(Character(UnicodeScalar(Int(val))!))"
+        }
     }
 }
 
@@ -153,7 +259,7 @@ extension ViewController: CBCentralManagerDelegate {
             scan()
         }
         else {
-            let alertVC = UIAlertController(title: "Bluetooth is not enabled", message: "Make sure that your bluetooth is turned on", preferredStyle: UIAlertController.Style.alert)
+            let alertVC = UIAlertController(title: "Bluetooth is not enabled", message: "Be sure that you have bluetooth turned on!", preferredStyle: UIAlertController.Style.alert)
             let action = UIAlertAction(title: "ok", style: UIAlertAction.Style.default, handler: { (action: UIAlertAction) -> Void in
                 self.dismiss(animated: true, completion: nil)
             })
@@ -166,8 +272,13 @@ extension ViewController: CBCentralManagerDelegate {
         if peripheral.name != nil && peripheral.name!.contains("ROBOTIS_410") {
             peripherals.append(peripheral)
             peripheral.delegate = self
+            
+            if let loading = loadingIndicator {
+                if loading.isAnimating {
+                    loading.stopAnimating()
+                }
+            }
         }
-        tableView.reloadData()
     }
     
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
@@ -182,7 +293,7 @@ extension ViewController: CBPeripheralDelegate {
         guard let services = peripheral.services else { return }
         
         for service in services {
-            if service.uuid == ViewController.kUartServiceUUID {
+            if service.uuid == kUartServiceUUID {
                 targetService = service
                 robotPeripheral.discoverCharacteristics(nil, for: service)
             }
@@ -194,10 +305,10 @@ extension ViewController: CBPeripheralDelegate {
         guard let characteristics = service.characteristics else { return }
         
         for characteristic in characteristics {
-            if characteristic.uuid == ViewController.kUartTxCharacteristicUUID {
+            if characteristic.uuid == kUartTxCharacteristicUUID {
                 TxCharacteristic = characteristic
             }
-            else if characteristic.uuid == ViewController.kUartRxCharacteristicUUID {
+            else if characteristic.uuid == kUartRxCharacteristicUUID {
                 RxCharacteristic = characteristic
             }
             peripheral.setNotifyValue(true, for: characteristic)
@@ -207,7 +318,7 @@ extension ViewController: CBPeripheralDelegate {
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic,
                     error: Error?) {
         switch characteristic.uuid {
-        case ViewController.kUartRxCharacteristicUUID:
+        case kUartRxCharacteristicUUID:
             let char = getData(from: characteristic)
             statusLabel.text = "Recieved a: \(char)"
         default:
