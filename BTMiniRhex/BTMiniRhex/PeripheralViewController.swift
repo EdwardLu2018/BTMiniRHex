@@ -57,6 +57,6 @@ class PeripheralViewController: UIViewController, UITableViewDataSource, UITable
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print(indexPath.row)
+        delegate?.robotPeripheral = delegate?.peripherals[indexPath.row]
     }
 }

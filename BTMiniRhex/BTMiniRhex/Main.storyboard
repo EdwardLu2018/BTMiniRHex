@@ -61,7 +61,7 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                                 <connections>
-                                    <action selector="connectionButtonDidPress:" destination="BYZ-38-t0r" eventType="touchUpInside" id="MR2-t2-4Wa"/>
+                                    <action selector="disconnectButtonDidPress:" destination="BYZ-38-t0r" eventType="touchUpInside" id="nOX-Dq-bta"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Cqf-cl-Sk0">
@@ -104,7 +104,7 @@
                     </view>
                     <connections>
                         <outlet property="backward" destination="dYv-AQ-HpX" id="rDz-Fm-4uw"/>
-                        <outlet property="connect" destination="xWr-FL-RPr" id="Vid-cn-eC8"/>
+                        <outlet property="disconnectButton" destination="xWr-FL-RPr" id="hmm-HP-aN6"/>
                         <outlet property="forward" destination="TjP-f2-Fu6" id="LWo-P1-8u8"/>
                         <outlet property="left" destination="Mqi-l3-EXQ" id="SWU-Jt-s1F"/>
                         <outlet property="right" destination="QAp-DU-iQh" id="Hsz-EX-PZo"/>

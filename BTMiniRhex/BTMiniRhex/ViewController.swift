@@ -10,7 +10,8 @@ import UIKit
 import CoreBluetooth
 
 protocol CBControl {
-    var peripherals:[CBPeripheral] { get set }
+    var peripherals: [CBPeripheral] { get set }
+    var robotPeripheral: CBPeripheral! { get set }
     func scan()
 }
 
@@ -18,7 +19,6 @@ class ViewController: UIViewController, CBControl {
     
     var centralManager: CBCentralManager!
     var robotPeripheral: CBPeripheral!
-    var connected: Bool = false
     var peripherals = [CBPeripheral]()
     var peripheralIndex: Int = 0
     
@@ -27,7 +27,7 @@ class ViewController: UIViewController, CBControl {
     @IBOutlet weak var backward: UIButton!
     @IBOutlet weak var left: UIButton!
     @IBOutlet weak var stop: UIButton!
-    @IBOutlet weak var connect: UIButton!
+    @IBOutlet weak var disconnectButton: UIButton!
     @IBOutlet weak var statusLabel: UILabel!
     
     let kUartServiceUUID = CBUUID(string: "6e400001-b5a3-f393-e0a9-e50e24dcca9e")
@@ -76,7 +76,7 @@ class ViewController: UIViewController, CBControl {
     }
     
     func setupLoading() {
-        loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: self.view.center.x - 25, y: connect.center.y + 20, width: 50, height: 50))
+        loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: self.view.center.x - 25, y: disconnectButton.center.y + 20, width: 50, height: 50))
         loadingIndicator.hidesWhenStopped = true
         loadingIndicator.style = UIActivityIndicatorView.Style.gray
         loadingIndicator.startAnimating()
@@ -210,11 +210,10 @@ class ViewController: UIViewController, CBControl {
         centralManager.scanForPeripherals(withServices: [kUartServiceUUID, kUartTxCharacteristicUUID, kUartRxCharacteristicUUID], options: nil)
     }
     
-    @IBAction func connectionButtonDidPress(_ sender: Any) {
-        if robotPeripheral != nil {
-            centralManager.cancelPeripheralConnection(robotPeripheral)
-            statusLabel.text = "DISCONNECTED"
-        }
+    @IBAction func disconnectButtonDidPress(_ sender: Any) {
+        guard let peripheral = robotPeripheral else { return }
+        centralManager.cancelPeripheralConnection(peripheral)
+        statusLabel.text = "DISCONNECTED"
     }
     
     @IBAction func forwardDidPress(_ sender: Any) {
@@ -283,7 +282,6 @@ extension ViewController: CBCentralManagerDelegate {
     
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         robotPeripheral.discoverServices(nil)
-        connected = true
         statusLabel.text = "CONNECTED"
     }
 }
