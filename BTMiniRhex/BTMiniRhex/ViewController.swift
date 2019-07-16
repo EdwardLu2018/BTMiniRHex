@@ -1,6 +1,6 @@
 //
 //  ViewController.swift
-//  BTTest-MiniRhex
+//  BTMiniRhex
 //
 //  Created by Edward on 6/26/19.
 //  Copyright © 2019 Edward. All rights reserved.
@@ -11,7 +11,7 @@ import CoreBluetooth
 
 protocol CBControl {
     var peripherals: [CBPeripheral] { get set }
-    var robotPeripheral: CBPeripheral! { get set }
+    var robotPeripheral: CBPeripheral? { get set }
     func scan()
     func connect()
 }
@@ -19,7 +19,7 @@ protocol CBControl {
 class ViewController: UIViewController, CBControl {
     
     var centralManager: CBCentralManager!
-    var robotPeripheral: CBPeripheral!
+    var robotPeripheral: CBPeripheral?
     var peripherals = [CBPeripheral]()
     var peripheralIndex: Int = 0
     
@@ -59,6 +59,7 @@ class ViewController: UIViewController, CBControl {
     var runningAnimations = [UIViewPropertyAnimator]()
     var animationProgressWhenInterrupted: CGFloat = 0
     
+    var tapGestureRecognizer = UITapGestureRecognizer()
     var panGestureRecognizer = UIPanGestureRecognizer()
     
     var loadingIndicator: UIActivityIndicatorView!
@@ -69,6 +70,9 @@ class ViewController: UIViewController, CBControl {
         centralManager = CBCentralManager(delegate: self, queue: nil)
         statusLabel.text = "Scanning for MiniRHexs..."
         
+        disconnectButton.addTarget(self, action: #selector(touchDownDisconnect), for: .touchDown)
+        disconnectButton.addTarget(self, action: #selector(touchEndDisconnect), for: [.touchUpInside, .touchUpOutside])
+        
         setUpSongViewController()
     }
     
@@ -77,7 +81,7 @@ class ViewController: UIViewController, CBControl {
     }
     
     func setupLoading() {
-        loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: self.view.center.x - 25, y: disconnectButton.center.y + 20, width: 50, height: 50))
+        loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: self.view.center.x - 25, y: statusLabel.center.y, width: 50, height: 50))
         loadingIndicator.hidesWhenStopped = true
         loadingIndicator.style = UIActivityIndicatorView.Style.gray
         loadingIndicator.startAnimating()
@@ -102,6 +106,10 @@ class ViewController: UIViewController, CBControl {
             peripheralViewController.view.clipsToBounds = true
             peripheralViewController.delegate = self
             
+            tapGestureRecognizer = UITapGestureRecognizer()
+            tapGestureRecognizer.addTarget(self, action: #selector(handleDataTap))
+            peripheralViewController.handleArea.addGestureRecognizer(tapGestureRecognizer)
+            
             panGestureRecognizer = UIPanGestureRecognizer()
             panGestureRecognizer.addTarget(self, action: #selector(handleDataPan))
             peripheralViewController.handleArea.addGestureRecognizer(panGestureRecognizer)
@@ -120,6 +128,16 @@ class ViewController: UIViewController, CBControl {
             updateTransition(fractionCompleted: fractionComplete)
         case .ended:
             continueTransition()
+        default:
+            break
+        }
+    }
+    
+    @objc
+    func handleDataTap(recognizer: UITapGestureRecognizer) {
+        switch recognizer.state {
+        case .ended:
+            animateTransitionIfNeeded(state: nextPeripheralVCState(), duration: 1)
         default:
             break
         }
@@ -147,7 +165,7 @@ class ViewController: UIViewController, CBControl {
                 case .expanded:
                     self.peripheralViewController.view.layer.cornerRadius = 15
                 case .collapsed:
-                    self.peripheralViewController.view.layer.cornerRadius = 7
+                    self.peripheralViewController.view.layer.cornerRadius = 5
                 }
             }
             cornerRadiusAnimator.startAnimation()
@@ -207,20 +225,25 @@ class ViewController: UIViewController, CBControl {
     }
     
     func scan() {
-        print("scanning")
         centralManager.scanForPeripherals(withServices: [kUartServiceUUID, kUartTxCharacteristicUUID, kUartRxCharacteristicUUID], options: nil)
     }
     
     func connect() {
         guard let peripheral = robotPeripheral else { return }
         centralManager.connect(peripheral)
-        print("connected!")
     }
     
-    @IBAction func disconnectButtonDidPress(_ sender: Any) {
+    @objc
+    func touchDownDisconnect() {
+        disconnectButton.backgroundColor = UIColor.red
         guard let peripheral = robotPeripheral else { return }
         centralManager.cancelPeripheralConnection(peripheral)
         statusLabel.text = "DISCONNECTED"
+    }
+    
+    @objc
+    func touchEndDisconnect() {
+        disconnectButton.backgroundColor = UIColor.yellow
     }
     
     @IBAction func forwardDidPress(_ sender: Any) {
@@ -265,7 +288,7 @@ extension ViewController: CBCentralManagerDelegate {
             scan()
         }
         else {
-            let alertVC = UIAlertController(title: "Bluetooth is not enabled", message: "Be sure that you have bluetooth turned on!", preferredStyle: UIAlertController.Style.alert)
+            let alertVC = UIAlertController(title: "Bluetooth is not enabled", message: "Be sure that you have bluetooth turned on", preferredStyle: UIAlertController.Style.alert)
             let action = UIAlertAction(title: "ok", style: UIAlertAction.Style.default, handler: { (action: UIAlertAction) -> Void in
                 self.dismiss(animated: true, completion: nil)
             })
@@ -290,7 +313,7 @@ extension ViewController: CBCentralManagerDelegate {
     }
     
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-        robotPeripheral.discoverServices(nil)
+        robotPeripheral?.discoverServices(nil)
         statusLabel.text = "CONNECTED"
     }
 }
@@ -302,7 +325,7 @@ extension ViewController: CBPeripheralDelegate {
         for service in services {
             if service.uuid == kUartServiceUUID {
                 targetService = service
-                robotPeripheral.discoverCharacteristics(nil, for: service)
+                robotPeripheral?.discoverCharacteristics(nil, for: service)
             }
         }
     }
@@ -336,16 +359,5 @@ extension ViewController: CBPeripheralDelegate {
     private func getData(from characteristic: CBCharacteristic) -> Character {
         guard let characteristicData = characteristic.value, let byte = characteristicData.first else {return Character("E")}
         return Character(UnicodeScalar(byte))
-    }
-}
-
-extension Data {
-    static func dataWithValue(value: Int8) -> Data {
-        var variableValue = value
-        return Data(buffer: UnsafeBufferPointer(start: &variableValue, count: 1))
-    }
-    
-    func int8Value() -> Int8 {
-        return Int8(bitPattern: self[0])
     }
 }

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B24B8F722DE8427004FDA0C /* DataExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B24B8F622DE8427004FDA0C /* DataExtension.swift */; };
 		2BD8EB3A22DD53CB00A6A1E6 /* PeripheralViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD8EB3922DD53CB00A6A1E6 /* PeripheralViewController.swift */; };
 		2BD8EB3C22DD55FD00A6A1E6 /* PeripheralTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD8EB3B22DD55FD00A6A1E6 /* PeripheralTableViewCell.swift */; };
 		2BE7A89122C5B7ED0032F1C0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE7A89022C5B7ED0032F1C0 /* AppDelegate.swift */; };
@@ -17,6 +18,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2B24B8F622DE8427004FDA0C /* DataExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataExtension.swift; sourceTree = "<group>"; };
 		2BD8EB3922DD53CB00A6A1E6 /* PeripheralViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeripheralViewController.swift; sourceTree = "<group>"; };
 		2BD8EB3B22DD55FD00A6A1E6 /* PeripheralTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeripheralTableViewCell.swift; sourceTree = "<group>"; };
 		2BE7A88D22C5B7ED0032F1C0 /* BTMiniRhex.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BTMiniRhex.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -59,6 +61,7 @@
 			isa = PBXGroup;
 			children = (
 				2BE7A89022C5B7ED0032F1C0 /* AppDelegate.swift */,
+				2B24B8F622DE8427004FDA0C /* DataExtension.swift */,
 				2BE7A8A422C5B8320032F1C0 /* ViewController.swift */,
 				2BD8EB3922DD53CB00A6A1E6 /* PeripheralViewController.swift */,
 				2BD8EB3B22DD55FD00A6A1E6 /* PeripheralTableViewCell.swift */,
@@ -146,6 +149,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B24B8F722DE8427004FDA0C /* DataExtension.swift in Sources */,
 				2BD8EB3A22DD53CB00A6A1E6 /* PeripheralViewController.swift in Sources */,
 				2BE7A8A522C5B8320032F1C0 /* ViewController.swift in Sources */,
 				2BD8EB3C22DD55FD00A6A1E6 /* PeripheralTableViewCell.swift in Sources */,
