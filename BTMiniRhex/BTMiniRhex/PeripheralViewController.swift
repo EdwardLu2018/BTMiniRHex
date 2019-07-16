@@ -32,12 +32,16 @@ class PeripheralViewController: UIViewController, UITableViewDataSource, UITable
 
         tableView.dataSource = self
         tableView.delegate = self
+        
+        tableView.reloadData()
     }
     
     @objc
     func refreshPeripherals(_ sender: Any) {
         delegate?.scan()
         self.refreshControl.endRefreshing()
+        print((delegate?.peripherals.count)!)
+        tableView.reloadData()
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -45,7 +49,7 @@ class PeripheralViewController: UIViewController, UITableViewDataSource, UITable
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return (delegate?.peripherals.count)!
+        return delegate?.peripherals.count ?? 1
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -57,6 +61,8 @@ class PeripheralViewController: UIViewController, UITableViewDataSource, UITable
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        delegate?.robotPeripheral = delegate?.peripherals[indexPath.row]
+        let mainPeripheral = delegate?.peripherals[indexPath.row]
+        delegate?.robotPeripheral = mainPeripheral
+        delegate?.connect()
     }
 }

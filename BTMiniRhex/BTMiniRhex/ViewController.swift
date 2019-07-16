@@ -13,6 +13,7 @@ protocol CBControl {
     var peripherals: [CBPeripheral] { get set }
     var robotPeripheral: CBPeripheral! { get set }
     func scan()
+    func connect()
 }
 
 class ViewController: UIViewController, CBControl {
@@ -210,6 +211,12 @@ class ViewController: UIViewController, CBControl {
         centralManager.scanForPeripherals(withServices: [kUartServiceUUID, kUartTxCharacteristicUUID, kUartRxCharacteristicUUID], options: nil)
     }
     
+    func connect() {
+        guard let peripheral = robotPeripheral else { return }
+        centralManager.connect(peripheral)
+        print("connected!")
+    }
+    
     @IBAction func disconnectButtonDidPress(_ sender: Any) {
         guard let peripheral = robotPeripheral else { return }
         centralManager.cancelPeripheralConnection(peripheral)
@@ -269,8 +276,10 @@ extension ViewController: CBCentralManagerDelegate {
     
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
         if peripheral.name != nil && peripheral.name!.contains("ROBOTIS_410") {
-            peripherals.append(peripheral)
-            peripheral.delegate = self
+            if !peripherals.contains(peripheral) {
+                peripherals.append(peripheral)
+                peripheral.delegate = self
+            }
             
             if let loading = loadingIndicator {
                 if loading.isAnimating {
