@@ -18,6 +18,7 @@ protocol CBControl {
 }
 
 protocol RobotControl {
+    
     func forward()
     func right()
     func backward()
@@ -239,12 +240,6 @@ class ViewController: UIViewController, CBControl, RobotControl {
         }
     }
     
-    func sendData(value: Int8) -> Bool {
-        guard let peripheral = robotPeripheral, let characteristic = TxCharacteristic else { return false }
-        peripheral.writeValue(Data.dataWithValue(value: value), for: characteristic, type: .withResponse)
-        return true
-    }
-    
     func scan() {
         centralManager.scanForPeripherals(withServices: [kUartServiceUUID, kUartTxCharacteristicUUID, kUartRxCharacteristicUUID], options: nil)
     }
@@ -259,7 +254,6 @@ class ViewController: UIViewController, CBControl, RobotControl {
         disconnectButton.backgroundColor = UIColor.red
         guard let peripheral = robotPeripheral else { return }
         centralManager.cancelPeripheralConnection(peripheral)
-        statusLabel.text = "DISCONNECTED"
     }
     
     @objc
@@ -301,6 +295,12 @@ class ViewController: UIViewController, CBControl, RobotControl {
             statusLabel.text = "Sent a: \(Character(UnicodeScalar(Int(val))!))"
         }
     }
+    
+    func sendData(value: Int8) -> Bool {
+        guard let peripheral = robotPeripheral, let characteristic = TxCharacteristic else { return false }
+        peripheral.writeValue(Data.dataWithValue(value: value), for: characteristic, type: .withResponse)
+        return true
+    }
 }
 
 extension ViewController: CBCentralManagerDelegate {
@@ -323,6 +323,7 @@ extension ViewController: CBCentralManagerDelegate {
             if !peripherals.contains(peripheral) {
                 peripherals.append(peripheral)
                 peripheral.delegate = self
+                peripheralViewController.tableView.reloadData()
             }
             
             if let loading = loadingIndicator {
@@ -337,6 +338,15 @@ extension ViewController: CBCentralManagerDelegate {
         robotPeripheral?.discoverServices(nil)
         statusLabel.text = "CONNECTED"
     }
+    
+    func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+        statusLabel.text = "DISCONNECTED"
+        peripherals = peripherals.filter { $0 != peripheral }
+        robotPeripheral = nil
+        loadingIndicator.startAnimating()
+        scan()
+        peripheralViewController.tableView.reloadData()
+    }
 }
 
 extension ViewController: CBPeripheralDelegate {
@@ -349,6 +359,10 @@ extension ViewController: CBPeripheralDelegate {
                 robotPeripheral?.discoverCharacteristics(nil, for: service)
             }
         }
+    }
+    
+    func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
+        statusLabel.text = "Failed to Connect!"
     }
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService,

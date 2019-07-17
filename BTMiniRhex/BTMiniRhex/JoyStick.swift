@@ -16,10 +16,21 @@ class JoyStick: UIView {
     var absoluteCenter = CGPoint()
     var initialCenter = CGPoint()
     
+    enum RobotState {
+        case forward
+        case backward
+        case right
+        case left
+        case stop
+    }
+    
+    var lastState: RobotState = .stop
+    
     var x: CGFloat = 0
     var y: CGFloat = 0
     
     var radius: CGFloat!
+    var stickRadius: CGFloat!
     
     init(x: CGFloat, y: CGFloat, radius: CGFloat, stickRadius: CGFloat) {
         super.init(frame: CGRect(x: x, y: y, width: radius*2, height: radius*2))
@@ -28,6 +39,7 @@ class JoyStick: UIView {
         
         absoluteCenter = self.center
         self.radius = radius
+        self.stickRadius = stickRadius
         self.layer.cornerRadius = radius
         self.clipsToBounds = true
         
@@ -65,28 +77,24 @@ class JoyStick: UIView {
             y = -(newCenter.y-absoluteCenter.y) / radius
             
             if abs(x) > abs(y) {
-                if x > 0 {
-                    print("right")
+                if x > 0 && lastState != .right {
                     delegate?.right()
+                    lastState = .right
                 }
-                else if x < 0 {
-                    print("left")
+                else if x < 0 && lastState != .left {
                     delegate?.left()
+                    lastState = .left
                 }
             }
             else if abs(x) < abs(y) {
-                if y > 0 {
-                    print("forward")
+                if y > 0 && lastState != .forward {
                     delegate?.forward()
+                    lastState = .forward
                 }
-                else if y < 0 {
-                    print("backward")
+                else if y < 0 && lastState != .backward {
                     delegate?.backward()
+                    lastState = .backward
                 }
-            }
-            else {
-                print("stop")
-                delegate?.stop()
             }
         }
         else {
@@ -94,8 +102,8 @@ class JoyStick: UIView {
         }
         if panGesture.state == .ended {
             stick.center = absoluteCenter
-            print("stop")
             delegate?.stop()
+            lastState = .stop
         }
     }
     

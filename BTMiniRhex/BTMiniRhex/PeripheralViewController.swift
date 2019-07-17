@@ -39,7 +39,6 @@ class PeripheralViewController: UIViewController, UITableViewDataSource, UITable
     
     @objc
     func refreshPeripherals(_ sender: Any) {
-        delegate?.peripherals = []
         delegate?.scan()
         self.refreshControl.endRefreshing()
         tableView.reloadData()
