@@ -12,22 +12,28 @@ import CoreBluetooth
 protocol CBControl {
     var peripherals: [CBPeripheral] { get set }
     var robotPeripheral: CBPeripheral? { get set }
+    
     func scan()
     func connect()
 }
 
-class ViewController: UIViewController, CBControl {
+protocol RobotControl {
+    func forward()
+    func right()
+    func backward()
+    func left()
+    func stop()
+}
+
+class ViewController: UIViewController, CBControl, RobotControl {
     
     var centralManager: CBCentralManager!
     var robotPeripheral: CBPeripheral?
     var peripherals = [CBPeripheral]()
     var peripheralIndex: Int = 0
     
-    @IBOutlet weak var forward: UIButton!
-    @IBOutlet weak var right: UIButton!
-    @IBOutlet weak var backward: UIButton!
-    @IBOutlet weak var left: UIButton!
-    @IBOutlet weak var stop: UIButton!
+    var joyStick: JoyStick!
+    
     @IBOutlet weak var disconnectButton: UIButton!
     @IBOutlet weak var statusLabel: UILabel!
     
@@ -62,6 +68,10 @@ class ViewController: UIViewController, CBControl {
     var tapGestureRecognizer = UITapGestureRecognizer()
     var panGestureRecognizer = UIPanGestureRecognizer()
     
+    var panGestureRecognizer1 = UIPanGestureRecognizer()
+    var initialCenter = CGPoint()
+    var v = UIView()
+    
     var loadingIndicator: UIActivityIndicatorView!
     
     override func viewDidLoad() {
@@ -73,11 +83,22 @@ class ViewController: UIViewController, CBControl {
         disconnectButton.addTarget(self, action: #selector(touchDownDisconnect), for: .touchDown)
         disconnectButton.addTarget(self, action: #selector(touchEndDisconnect), for: [.touchUpInside, .touchUpOutside])
         
+        setupJoyStick()
         setUpSongViewController()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         setupLoading()
+    }
+    
+    func setupJoyStick() {
+        let jStickRadius: CGFloat = 80.0
+        joyStick = JoyStick(x: view.center.x-jStickRadius, y: view.center.y-jStickRadius+40, radius: jStickRadius, stickRadius: 35)
+        view.addSubview(joyStick)
+        view.addSubview(joyStick.stick)
+        view.sendSubviewToBack(joyStick.stick)
+        view.sendSubviewToBack(joyStick)
+        joyStick.delegate = self
     }
     
     func setupLoading() {
@@ -246,35 +267,35 @@ class ViewController: UIViewController, CBControl {
         disconnectButton.backgroundColor = UIColor.yellow
     }
     
-    @IBAction func forwardDidPress(_ sender: Any) {
+    func forward() {
         let val = Int8(Array("w".utf8)[0])
         if sendData(value: val) {
             statusLabel.text = "Sent a: \(Character(UnicodeScalar(Int(val))!))"
         }
     }
     
-    @IBAction func rightDidPress(_ sender: Any) {
+    func right() {
         let val = Int8(Array("d".utf8)[0])
         if sendData(value: val) {
             statusLabel.text = "Sent a: \(Character(UnicodeScalar(Int(val))!))"
         }
     }
     
-    @IBAction func backwardDidPress(_ sender: Any) {
+    func backward() {
         let val = Int8(Array("s".utf8)[0])
         if sendData(value: val) {
             statusLabel.text = "Sent a: \(Character(UnicodeScalar(Int(val))!))"
         }
     }
     
-    @IBAction func leftDidPress(_ sender: Any) {
+    func left() {
         let val = Int8(Array("a".utf8)[0])
         if sendData(value: val) {
             statusLabel.text = "Sent a: \(Character(UnicodeScalar(Int(val))!))"
         }
     }
     
-    @IBAction func stopDidPress(_ sender: Any) {
+    func stop() {
         let val = Int8(Array("q".utf8)[0])
         if sendData(value: val) {
             statusLabel.text = "Sent a: \(Character(UnicodeScalar(Int(val))!))"
