@@ -324,6 +324,13 @@ extension ViewController: CBCentralManagerDelegate {
                 peripherals.append(peripheral)
                 peripheral.delegate = self
                 peripheralViewController.tableView.reloadData()
+                if robotPeripheral == nil {
+                    robotPeripheral = peripheral
+                    connect()
+                    let indexPath = IndexPath(row: peripherals.firstIndex(of: peripheral) ?? 0, section: 0)
+                    peripheralViewController.tableView.selectRow(at: indexPath, animated: true, scrollPosition: .middle)
+                }
+                statusLabel.text = "Peripherals are available"
             }
             
             if let loading = loadingIndicator {
@@ -342,7 +349,7 @@ extension ViewController: CBCentralManagerDelegate {
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
         statusLabel.text = "DISCONNECTED"
         peripherals = peripherals.filter { $0 != peripheral }
-        robotPeripheral = nil
+//        robotPeripheral = nil
         loadingIndicator.startAnimating()
         scan()
         peripheralViewController.tableView.reloadData()
