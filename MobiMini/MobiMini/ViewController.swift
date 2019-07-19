@@ -18,7 +18,6 @@ protocol CBControl {
 }
 
 protocol RobotControl {
-    
     func forward()
     func right()
     func backward()
@@ -33,10 +32,16 @@ class ViewController: UIViewController, CBControl, RobotControl {
     var peripherals = [CBPeripheral]()
     var peripheralIndex: Int = 0
     
-    var joyStick: JoyStick!
+    @IBOutlet weak var textBox: UITextField!
+    @IBOutlet weak var sendButton: UIButton!
+    
+    @IBOutlet weak var toggleJoystickButton: UIButton!
+    @IBOutlet weak var toggleKeyboardButton: UIButton!
     
     @IBOutlet weak var disconnectButton: UIButton!
     @IBOutlet weak var statusLabel: UILabel!
+    
+    var joyStick: JoyStick!
     
     let kUartServiceUUID = CBUUID(string: "6e400001-b5a3-f393-e0a9-e50e24dcca9e")
     let kUartTxCharacteristicUUID = CBUUID(string: "6e400002-b5a3-f393-e0a9-e50e24dcca9e")
@@ -81,8 +86,20 @@ class ViewController: UIViewController, CBControl, RobotControl {
         centralManager = CBCentralManager(delegate: self, queue: nil)
         statusLabel.text = "Scanning for MiniRHexs..."
         
+        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+        
         disconnectButton.addTarget(self, action: #selector(touchDownDisconnect), for: .touchDown)
         disconnectButton.addTarget(self, action: #selector(touchEndDisconnect), for: [.touchUpInside, .touchUpOutside])
+        
+        sendButton.addTarget(self, action: #selector(touchDownSend), for: .touchDown)
+        sendButton.addTarget(self, action: #selector(touchEndSend), for: [.touchUpInside, .touchUpOutside])
+        
+        toggleJoystickButton.addTarget(self, action: #selector(touchDownJoystick), for: .touchDown)
+        
+        toggleKeyboardButton.addTarget(self, action: #selector(touchDownKeyboard), for: .touchDown)
+        toggleKeyboardButton.alpha = 0.5
         
         setupJoyStick()
         setUpSongViewController()
@@ -136,6 +153,11 @@ class ViewController: UIViewController, CBControl, RobotControl {
             panGestureRecognizer.addTarget(self, action: #selector(handleDataPan))
             peripheralViewController.handleArea.addGestureRecognizer(panGestureRecognizer)
         }
+    }
+    
+    @objc
+    func dismissKeyboard() {
+        view.endEditing(true)
     }
     
     @objc
@@ -261,6 +283,34 @@ class ViewController: UIViewController, CBControl, RobotControl {
         disconnectButton.backgroundColor = UIColor.yellow
     }
     
+    @objc
+    func touchDownJoystick() {
+        toggleJoystickButton.alpha = 1.0
+        toggleKeyboardButton.alpha = 0.5
+        showJoystick()
+    }
+    
+    @objc
+    func touchDownKeyboard() {
+        toggleJoystickButton.alpha = 0.5
+        toggleKeyboardButton.alpha = 1.0
+        showTextBox()
+    }
+    
+    func showJoystick() {
+        textBox.isHidden = true
+        sendButton.isHidden = true
+        joyStick.isHidden = false
+        joyStick.stick.isHidden = false
+    }
+    
+    func showTextBox() {
+        textBox.isHidden = false
+        sendButton.isHidden = false
+        joyStick.isHidden = true
+        joyStick.stick.isHidden = true
+    }
+    
     func forward() {
         let val = Int8(Array("w".utf8)[0])
         if sendData(value: val) {
@@ -294,6 +344,24 @@ class ViewController: UIViewController, CBControl, RobotControl {
         if sendData(value: val) {
             statusLabel.text = "Sent a: \(Character(UnicodeScalar(Int(val))!))"
         }
+    }
+    
+    @objc
+    func touchDownSend() {
+        if textBox.text!.count > 0 {
+            let charArr = Array(textBox.text!.utf8)
+            let valArr = charArr.map{ Int8($0) }
+            for val in valArr {
+                if sendData(value: val) {
+                    statusLabel.text = "Sent a: \(Character(UnicodeScalar(Int(val))!))"
+                }
+            }
+        }
+    }
+    
+    @objc
+    func touchEndSend() {
+        
     }
     
     func sendData(value: Int8) -> Bool {
