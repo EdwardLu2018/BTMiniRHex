@@ -1,6 +1,6 @@
 //
 //  ViewController.swift
-//  BTMiniRhex
+//  MobiMini
 //
 //  Created by Edward on 6/26/19.
 //  Copyright © 2019 Edward. All rights reserved.

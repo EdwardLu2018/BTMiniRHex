@@ -1,6 +1,6 @@
 //
 //  PeripheralTableViewCell.swift
-//  BTMiniRhex
+//  MobiMini
 //
 //  Created by Edward on 7/15/19.
 //  Copyright © 2019 Edward. All rights reserved.

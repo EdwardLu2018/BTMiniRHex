@@ -1,6 +1,6 @@
 //
 //  JoyStick.swift
-//  BTMiniRhex
+//  MobiMini
 //
 //  Created by Edward on 7/16/19.
 //  Copyright © 2019 Edward. All rights reserved.
@@ -34,24 +34,32 @@ class JoyStick: UIView {
     
     init(x: CGFloat, y: CGFloat, radius: CGFloat, stickRadius: CGFloat) {
         super.init(frame: CGRect(x: x, y: y, width: radius*2, height: radius*2))
-        stick = UIView(frame: CGRect(x: frame.midX, y: frame.midY, width: stickRadius*2, height: stickRadius*2))
-        stick.center = self.center
-        
-        absoluteCenter = self.center
         self.radius = radius
         self.stickRadius = stickRadius
+        
+        setupView()
+        setupStick()
+    }
+    
+    func setupView() {
+        self.backgroundColor = UIColor.gray
+        self.absoluteCenter = self.center
         self.layer.cornerRadius = radius
         self.clipsToBounds = true
+    }
+    
+    func setupStick() {
+        stick = UIView(frame: CGRect(x: frame.midX, y: frame.midY, width: stickRadius*2, height: stickRadius*2))
+        stick.center = self.center
         
         stick.layer.cornerRadius = stick.frame.size.width / 2
         stick.clipsToBounds = true
         
-        self.backgroundColor = UIColor.gray
         stick.backgroundColor = UIColor.darkGray
         
-        self.addSubview(stick)
         panGesture.addTarget(self, action: #selector(handleStickPan))
         stick.addGestureRecognizer(panGesture)
+        self.addSubview(stick)
     }
     
     @objc

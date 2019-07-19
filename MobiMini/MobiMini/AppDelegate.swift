@@ -1,6 +1,6 @@
 //
 //  AppDelegate.swift
-//  BTMiniRhex
+//  MobiMini
 //
 //  Created by Edward on 6/27/19.
 //  Copyright © 2019 Edward. All rights reserved.

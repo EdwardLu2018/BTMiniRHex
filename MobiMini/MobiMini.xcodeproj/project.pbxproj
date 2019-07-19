@@ -23,7 +23,7 @@
 		2B24B91822DECAA5004FDA0C /* JoyStick.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JoyStick.swift; sourceTree = "<group>"; };
 		2BD8EB3922DD53CB00A6A1E6 /* PeripheralViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeripheralViewController.swift; sourceTree = "<group>"; };
 		2BD8EB3B22DD55FD00A6A1E6 /* PeripheralTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeripheralTableViewCell.swift; sourceTree = "<group>"; };
-		2BE7A88D22C5B7ED0032F1C0 /* BTMiniRhex.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BTMiniRhex.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2BE7A88D22C5B7ED0032F1C0 /* MobiMini.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MobiMini.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BE7A89022C5B7ED0032F1C0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2BE7A89A22C5B7F10032F1C0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2BE7A89C22C5B7F10032F1C0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -46,7 +46,7 @@
 		2BE7A88422C5B7ED0032F1C0 = {
 			isa = PBXGroup;
 			children = (
-				2BE7A88F22C5B7ED0032F1C0 /* BTMiniRhex */,
+				2BE7A88F22C5B7ED0032F1C0 /* MobiMini */,
 				2BE7A88E22C5B7ED0032F1C0 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -54,12 +54,12 @@
 		2BE7A88E22C5B7ED0032F1C0 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				2BE7A88D22C5B7ED0032F1C0 /* BTMiniRhex.app */,
+				2BE7A88D22C5B7ED0032F1C0 /* MobiMini.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		2BE7A88F22C5B7ED0032F1C0 /* BTMiniRhex */ = {
+		2BE7A88F22C5B7ED0032F1C0 /* MobiMini */ = {
 			isa = PBXGroup;
 			children = (
 				2BE7A89022C5B7ED0032F1C0 /* AppDelegate.swift */,
@@ -73,15 +73,15 @@
 				2BE7A89922C5B7F10032F1C0 /* LaunchScreen.storyboard */,
 				2BE7A89C22C5B7F10032F1C0 /* Info.plist */,
 			);
-			path = BTMiniRhex;
+			path = MobiMini;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		2BE7A88C22C5B7ED0032F1C0 /* BTMiniRhex */ = {
+		2BE7A88C22C5B7ED0032F1C0 /* MobiMini */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2BE7A89F22C5B7F10032F1C0 /* Build configuration list for PBXNativeTarget "BTMiniRhex" */;
+			buildConfigurationList = 2BE7A89F22C5B7F10032F1C0 /* Build configuration list for PBXNativeTarget "MobiMini" */;
 			buildPhases = (
 				2BE7A88922C5B7ED0032F1C0 /* Sources */,
 				2BE7A88A22C5B7ED0032F1C0 /* Frameworks */,
@@ -91,9 +91,9 @@
 			);
 			dependencies = (
 			);
-			name = BTMiniRhex;
-			productName = BTMiniRhex;
-			productReference = 2BE7A88D22C5B7ED0032F1C0 /* BTMiniRhex.app */;
+			name = MobiMini;
+			productName = MobiMini;
+			productReference = 2BE7A88D22C5B7ED0032F1C0 /* MobiMini.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -116,7 +116,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 2BE7A88822C5B7ED0032F1C0 /* Build configuration list for PBXProject "BTMiniRhex" */;
+			buildConfigurationList = 2BE7A88822C5B7ED0032F1C0 /* Build configuration list for PBXProject "MobiMini" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -129,7 +129,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				2BE7A88C22C5B7ED0032F1C0 /* BTMiniRhex */,
+				2BE7A88C22C5B7ED0032F1C0 /* MobiMini */,
 			);
 		};
 /* End PBXProject section */
@@ -297,13 +297,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = LYJSRZED64;
-				INFOPLIST_FILE = BTMiniRhex/Info.plist;
+				INFOPLIST_FILE = MobiMini/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.EdwardLu.BTMiniRhex;
+				PRODUCT_BUNDLE_IDENTIFIER = com.EdwardLu.MobiMini;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -316,13 +316,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = LYJSRZED64;
-				INFOPLIST_FILE = BTMiniRhex/Info.plist;
+				INFOPLIST_FILE = MobiMini/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.EdwardLu.BTMiniRhex;
+				PRODUCT_BUNDLE_IDENTIFIER = com.EdwardLu.MobiMini;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -332,7 +332,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		2BE7A88822C5B7ED0032F1C0 /* Build configuration list for PBXProject "BTMiniRhex" */ = {
+		2BE7A88822C5B7ED0032F1C0 /* Build configuration list for PBXProject "MobiMini" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2BE7A89D22C5B7F10032F1C0 /* Debug */,
@@ -341,7 +341,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2BE7A89F22C5B7F10032F1C0 /* Build configuration list for PBXNativeTarget "BTMiniRhex" */ = {
+		2BE7A89F22C5B7F10032F1C0 /* Build configuration list for PBXNativeTarget "MobiMini" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2BE7A8A022C5B7F10032F1C0 /* Debug */,
